@@ -11,6 +11,7 @@ using namespace std;
 void inicializarDB();
 bool validarExistenciaReceta(string nombreReceta);
 void crearReceta(string nombreReceta);
-void calcularMaquinasNecesarias(string nombreReceta, int tiempo);
+void calcularMaquinasNecesarias(string nombreReceta, int cantidad);
+void imprimirMaquinasNecesarias();
 
 #endif

@@ -15,7 +15,7 @@ int main(int argc , char* argv[]){
 	getline(cin, nombreReceta);
 
 	if(validarExistenciaReceta(nombreReceta)){
-		calcularMaquinasNecesarias(nombreReceta, 10);
+		calcularMaquinasNecesarias(nombreReceta, 3);
 	}
 	else{
 		cout << "La receta ingresada no existe ¿Desea crearla? (Si/No): ";
@@ -27,6 +27,8 @@ int main(int argc , char* argv[]){
 			crearReceta(nombreReceta);
 		}
 	}
+
+	imprimirMaquinasNecesarias();
 
 	return 0;
 }

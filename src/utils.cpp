@@ -5,17 +5,17 @@
 #include "utils.h"
 #include <sqlite3.h>
 #include <map>
+#include <vector>
 
 using namespace std;
 
 sqlite3* db;
+map<string, int> maquinas;
 
 struct detalle
 {
-    int id;
-    string nombreReceta;
-    string nombreComponente;
-    int cantidad;
+    vector<string> componentes;
+    vector<int> cantidades;
 };
 
 struct receta
@@ -34,6 +34,18 @@ static int callbackReceta(void *veryUsed, int argc, char **argv, char **azColNam
   }
   return 0;
 }
+
+static int callbackDetalleReceta(void *veryUsed, int argc, char **argv, char **azColName){
+  detalle *info = (detalle *)veryUsed;
+  for(int i=0; i < argc; i++){
+    if (strcmp(azColName[i], "nombre_componente") == 0)
+       info->componentes.push_back(argv[2]);
+    else if (strcmp(azColName[i], "cantidad") == 0)
+        info->cantidades.push_back(stof(argv[3]));
+  }
+  return 0;
+}
+
 
 void ejecutarComandoSQL(const char* sql){
     int rc;
@@ -152,7 +164,15 @@ void crearReceta(string nombreReceta){
     }
 }
 
-void calcularMaquinasNecesarias(string nombreReceta, int tiempo){
+void imprimirMaquinasNecesarias(){
+    map<string, int>::iterator itr;
+    for(itr=maquinas.begin();itr!=maquinas.end();itr++)
+    {
+        cout<<"Receta: \""<< itr->first << "\" - Maquinas: "<< itr->second << endl;
+    }
+}
+
+void calcularMaquinasNecesarias(string nombreReceta, int cantidad){
     int rc;
     char* errorMessage = nullptr;
     receta info;
@@ -168,5 +188,30 @@ void calcularMaquinasNecesarias(string nombreReceta, int tiempo){
         std::cout << "Comando ejecutado exitosamente" << std::endl;
     }
 
-    cout << info.nombreReceta << "\n" << info.tiempoDeFabricacion << endl;
+    float cantidadPorMaquina = 3600 / info.tiempoDeFabricacion;
+    int maquinasNecesarias = cantidad / cantidadPorMaquina;
+
+    if(cantidad / cantidadPorMaquina - maquinasNecesarias != 0){
+        maquinasNecesarias++;
+    }
+
+    maquinas[nombreReceta] += maquinasNecesarias;
+
+    sqlStr = "SELECT * FROM detalle_receta WHERE nombre_receta = '" + nombreReceta + "'";
+    sql = sqlStr.c_str();
+
+    detalle detalleReceta;
+
+    rc = sqlite3_exec(db, sql, callbackDetalleReceta, &detalleReceta, &errorMessage);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "SQL error: " << errorMessage << std::endl;
+        sqlite3_free(errorMessage);
+    } else {
+        std::cout << "Comando ejecutado exitosamente" << std::endl;
+    }
+
+    for(int i = 0; i < detalleReceta.cantidades.size(); i++){
+        calcularMaquinasNecesarias(detalleReceta.componentes[i], detalleReceta.cantidades[i] * maquinasNecesarias);
+    }
 }
