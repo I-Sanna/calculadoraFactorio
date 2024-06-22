@@ -22,6 +22,7 @@ struct receta
 {
     string nombreReceta;
     float tiempoDeFabricacion;
+    int cantidadPorReceta;
 };
 
 static int callbackReceta(void *veryUsed, int argc, char **argv, char **azColName){
@@ -31,6 +32,8 @@ static int callbackReceta(void *veryUsed, int argc, char **argv, char **azColNam
        info->nombreReceta = argv[0];
     else if (strcmp(azColName[i], "tiempo_de_fabricacion") == 0)
         info->tiempoDeFabricacion = stof(argv[1]);
+    else if (strcmp(azColName[i], "cantidad_por_receta") == 0)
+        info->cantidadPorReceta = stof(argv[2]);
   }
   return 0;
 }
@@ -71,7 +74,8 @@ void inicializarDB(){
 
     const char* sql = "CREATE TABLE IF NOT EXISTS recetas("
                       "nombre TEXT PRIMARY KEY,"
-                      "tiempo_de_fabricacion REAL NOT NULL);";
+                      "tiempo_de_fabricacion REAL NOT NULL,"
+                      "cantidad_por_receta INT NOT NULL);";
     
     ejecutarComandoSQL(sql);
 
@@ -112,8 +116,8 @@ bool validarExistenciaReceta(string nombreReceta){
     }
 }
 
-void crearReceta(string nombreReceta){
-    cout << "Ingrese el tiempo necesario en seg para fabricar 1 unidad: ";
+void crearReceta(string nombreReceta, int cantidadPorReceta){
+    cout << "Ingrese el tiempo necesario en seg para fabricar la receta: ";
 
     float tiempoDeFabricacion;
     cin >> tiempoDeFabricacion;
@@ -149,7 +153,7 @@ void crearReceta(string nombreReceta){
         cin.ignore();
     }
 
-    string comando = "INSERT INTO recetas (nombre, tiempo_de_fabricacion) VALUES ('" + nombreReceta + "'," + to_string(tiempoDeFabricacion) + ");";
+    string comando = "INSERT INTO recetas (nombre, tiempo_de_fabricacion, cantidad_por_receta) VALUES ('" + nombreReceta + "'," + to_string(tiempoDeFabricacion) + "," + to_string(cantidadPorReceta) + ");";
 
     const char* sql = comando.c_str();
     
@@ -184,7 +188,7 @@ void calcularMaquinasNecesarias(string nombreReceta, int cantidad){
         sqlite3_free(errorMessage);
     }
 
-    float cantidadPorMaquina = 3600 / info.tiempoDeFabricacion;
+    float cantidadPorMaquina = 3600 / (info.tiempoDeFabricacion / info.cantidadPorReceta);
     int maquinasNecesarias = cantidad / cantidadPorMaquina;
 
     if(cantidad / cantidadPorMaquina - maquinasNecesarias != 0){
