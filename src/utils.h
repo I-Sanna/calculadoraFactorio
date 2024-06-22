@@ -10,7 +10,7 @@ using namespace std;
 
 void inicializarDB();
 bool validarExistenciaReceta(string nombreReceta);
-void crearReceta(string nombreReceta);
+void crearReceta(string nombreReceta, int cantidadPorReceta);
 void calcularMaquinasNecesarias(string nombreReceta, int cantidad);
 void imprimirMaquinasNecesarias();
 
