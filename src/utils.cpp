@@ -56,8 +56,6 @@ void ejecutarComandoSQL(const char* sql){
     if (rc != SQLITE_OK) {
         std::cerr << "SQL error: " << errorMessage << std::endl;
         sqlite3_free(errorMessage);
-    } else {
-        std::cout << "Comando ejecutado exitosamente" << std::endl;
     }
 }
 
@@ -184,8 +182,6 @@ void calcularMaquinasNecesarias(string nombreReceta, int cantidad){
     if (rc != SQLITE_OK) {
         std::cerr << "SQL error: " << errorMessage << std::endl;
         sqlite3_free(errorMessage);
-    } else {
-        std::cout << "Comando ejecutado exitosamente" << std::endl;
     }
 
     float cantidadPorMaquina = 3600 / info.tiempoDeFabricacion;
@@ -207,8 +203,6 @@ void calcularMaquinasNecesarias(string nombreReceta, int cantidad){
     if (rc != SQLITE_OK) {
         std::cerr << "SQL error: " << errorMessage << std::endl;
         sqlite3_free(errorMessage);
-    } else {
-        std::cout << "Comando ejecutado exitosamente" << std::endl;
     }
 
     for(int i = 0; i < detalleReceta.cantidades.size(); i++){
