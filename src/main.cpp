@@ -14,8 +14,13 @@ int main(int argc , char* argv[]){
 	string nombreReceta;
 	getline(cin, nombreReceta);
 
+	cout << "Ingrese la cantidad que quiere fabricar por hora: ";
+
+	int cantidadPorHora;
+	cin >> cantidadPorHora;
+
 	if(validarExistenciaReceta(nombreReceta)){
-		calcularMaquinasNecesarias(nombreReceta, 3);
+		calcularMaquinasNecesarias(nombreReceta, cantidadPorHora);
 	}
 	else{
 		cout << "La receta ingresada no existe ¿Desea crearla? (Si/No): ";
