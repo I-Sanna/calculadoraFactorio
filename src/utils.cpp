@@ -210,6 +210,6 @@ void calcularMaquinasNecesarias(string nombreReceta, int cantidad){
     }
 
     for(int i = 0; i < detalleReceta.cantidades.size(); i++){
-        calcularMaquinasNecesarias(detalleReceta.componentes[i], detalleReceta.cantidades[i] * maquinasNecesarias);
+        calcularMaquinasNecesarias(detalleReceta.componentes[i], detalleReceta.cantidades[i] / info.tiempoDeFabricacion * 3600 * maquinasNecesarias);
     }
 }
