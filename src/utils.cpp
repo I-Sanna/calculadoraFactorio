@@ -11,6 +11,8 @@ using namespace std;
 
 sqlite3* db;
 map<string, int> maquinas;
+map<string, int> recursosNecesariosPorHora;
+map<string, float> cantidadProducidaPorHora;
 
 struct detalle
 {
@@ -168,6 +170,22 @@ void crearReceta(string nombreReceta, int cantidadPorReceta){
 
 void imprimirMaquinasNecesarias(){
     map<string, int>::iterator itr;
+
+    for(itr=recursosNecesariosPorHora.begin();itr!=recursosNecesariosPorHora.end();itr++)
+    {
+        string nombreReceta = itr->first;
+        int cantidadNecesaria = recursosNecesariosPorHora[nombreReceta];
+        float cantidadPorHora = cantidadProducidaPorHora[nombreReceta];
+
+        int maquinasNecesarias = cantidadNecesaria / cantidadPorHora;
+
+        if(cantidadNecesaria / cantidadPorHora - maquinasNecesarias != 0){
+            maquinasNecesarias++;
+        }
+
+        maquinas[nombreReceta] = maquinasNecesarias;
+    }
+
     for(itr=maquinas.begin();itr!=maquinas.end();itr++)
     {
         cout<<"Receta: \""<< itr->first << "\" - Maquinas: "<< itr->second << endl;
@@ -195,7 +213,8 @@ void calcularMaquinasNecesarias(string nombreReceta, int cantidad){
         maquinasNecesarias++;
     }
 
-    maquinas[nombreReceta] += maquinasNecesarias;
+    recursosNecesariosPorHora[nombreReceta] += cantidad;
+    cantidadProducidaPorHora[nombreReceta] = cantidadPorMaquina;
 
     sqlStr = "SELECT * FROM detalle_receta WHERE nombre_receta = '" + nombreReceta + "'";
     sql = sqlStr.c_str();
