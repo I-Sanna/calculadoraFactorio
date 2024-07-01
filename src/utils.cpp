@@ -11,7 +11,7 @@ using namespace std;
 
 sqlite3* db;
 map<string, int> maquinas;
-map<string, int> recursosNecesariosPorHora;
+map<string, float> recursosNecesariosPorHora;
 map<string, float> cantidadProducidaPorHora;
 
 struct detalle
@@ -169,12 +169,12 @@ void crearReceta(string nombreReceta, int cantidadPorReceta){
 }
 
 void imprimirMaquinasNecesarias(){
-    map<string, int>::iterator itr;
+    map<string, float>::iterator itr;
 
     for(itr=recursosNecesariosPorHora.begin();itr!=recursosNecesariosPorHora.end();itr++)
     {
         string nombreReceta = itr->first;
-        int cantidadNecesaria = recursosNecesariosPorHora[nombreReceta];
+        float cantidadNecesaria = itr->second;
         float cantidadPorHora = cantidadProducidaPorHora[nombreReceta];
 
         int maquinasNecesarias = cantidadNecesaria / cantidadPorHora;
@@ -183,16 +183,11 @@ void imprimirMaquinasNecesarias(){
             maquinasNecesarias++;
         }
 
-        maquinas[nombreReceta] = maquinasNecesarias;
-    }
-
-    for(itr=maquinas.begin();itr!=maquinas.end();itr++)
-    {
-        cout<<"Receta: \""<< itr->first << "\" - Maquinas: "<< itr->second << endl;
+        cout<<"Receta: \""<< nombreReceta << "\" - Maquinas: "<< maquinasNecesarias << endl;
     }
 }
 
-void calcularMaquinasNecesarias(string nombreReceta, int cantidad){
+void calcularMaquinasNecesarias(string nombreReceta, float cantidad){
     int rc;
     char* errorMessage = nullptr;
     receta info;
@@ -206,12 +201,7 @@ void calcularMaquinasNecesarias(string nombreReceta, int cantidad){
         sqlite3_free(errorMessage);
     }
 
-    float cantidadPorMaquina = 3600 / (info.tiempoDeFabricacion / info.cantidadPorReceta);
-    int maquinasNecesarias = cantidad / cantidadPorMaquina;
-
-    if(cantidad / cantidadPorMaquina - maquinasNecesarias != 0){
-        maquinasNecesarias++;
-    }
+    float cantidadPorMaquina = 3600 / info.tiempoDeFabricacion * info.cantidadPorReceta;
 
     recursosNecesariosPorHora[nombreReceta] += cantidad;
     cantidadProducidaPorHora[nombreReceta] = cantidadPorMaquina;
@@ -229,6 +219,6 @@ void calcularMaquinasNecesarias(string nombreReceta, int cantidad){
     }
 
     for(int i = 0; i < detalleReceta.cantidades.size(); i++){
-        calcularMaquinasNecesarias(detalleReceta.componentes[i], detalleReceta.cantidades[i] / info.tiempoDeFabricacion * 3600 * maquinasNecesarias);
+        calcularMaquinasNecesarias(detalleReceta.componentes[i], detalleReceta.cantidades[i] / info.tiempoDeFabricacion * 3600 * (cantidad / cantidadPorMaquina));
     }
 }
